@@ -1,6 +1,5 @@
 # Environment and configuration
 .env
-config.py
 .venv
 venv
 env
