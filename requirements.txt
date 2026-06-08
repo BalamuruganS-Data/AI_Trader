@@ -1,0 +1,9 @@
+Flask
+gunicorn
+pandas
+numpy
+yfinance
+schedule
+kiteconnect
+upstox_api
+python-dotenv

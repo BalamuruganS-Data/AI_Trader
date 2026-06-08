@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Indian Intraday Trader</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="container py-4">
+      <h1 class="mb-4">Indian Intraday Trader</h1>
+
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <div class="card mb-3">
+            <div class="card-body">
+              <h5 class="card-title">Broker Status</h5>
+              <p>Provider: <strong>{{ status.provider }}</strong></p>
+              <p>Live trading: <strong>{{ status.live_trading }}</strong></p>
+              <p>Mode: <strong>Dynamic Stock Screening</strong></p>
+              <p>Stock universe: <strong>{{ status.stock_universe_size }} stocks</strong></p>
+              <p>Max allocation: <strong>{{ status.max_daily_allocation_fraction * 100 }}%</strong></p>
+              {% if balance is not none %}
+              <p>Balance: <strong>₹{{ "%.2f" | format(balance) }}</strong></p>
+              {% endif %}
+              {% if status.balance_error %}
+              <div class="alert alert-warning p-2">Balance error: {{ status.balance_error }}</div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="card mb-3">
+            <div class="card-body">
+              <h5 class="card-title">Run dynamic screener</h5>
+              <p class="text-muted small">Scans all stocks in the universe, identifies the best setups, and trades them automatically.</p>
+              <form method="post" action="/run">
+                <div class="mb-3">
+                  <label class="form-label">Requested allocation (optional)</label>
+                  <input type="text" class="form-control" name="allocation" placeholder="e.g. 10000" />
+                </div>
+                <button type="submit" class="btn btn-primary">Run screener & trade</button>
+              </form>
+              {% if run_result %}
+              <div class="alert alert-info mt-3">{{ run_result }}</div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="card mb-3">
+            <div class="card-body">
+              <h5 class="card-title">End of day summary</h5>
+              <form method="post" action="/summary">
+                <div class="mb-3">
+                  <label class="form-label">Summary date</label>
+                  <input type="date" class="form-control" name="summary_date" value="{{ today }}" />
+                </div>
+                <button type="submit" class="btn btn-secondary">Send summary email</button>
+              </form>
+              {% if summary_message %}
+              <div class="alert alert-info mt-3">{{ summary_message }}</div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {% if trades is defined and trades is not none %}
+      <div class="card mb-3">
+        <div class="card-body">
+          <h5 class="card-title">Trade results</h5>
+          {% if trades %}
+          <table class="table table-sm">
+            <thead>
+              <tr>
+                <th>Ticker</th>
+                <th>Qty</th>
+                <th>Entry</th>
+                <th>SL</th>
+                <th>Target</th>
+                <th>Provider</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for trade in trades %}
+              <tr>
+                <td>{{ trade.ticker }}</td>
+                <td>{{ trade.quantity }}</td>
+                <td>{{ "%.2f" | format(trade.entry_price) }}</td>
+                <td>{{ "%.2f" | format(trade.stop_loss) }}</td>
+                <td>{{ "%.2f" | format(trade.target) }}</td>
+                <td>{{ trade.provider }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% else %}
+          <p>No trades were generated this run.</p>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+
+      {% if summary_text %}
+      <div class="card mb-3">
+        <div class="card-body">
+          <h5 class="card-title">Summary text</h5>
+          <pre>{{ summary_text }}</pre>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </body>
+</html>

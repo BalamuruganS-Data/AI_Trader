@@ -1,0 +1,37 @@
+{
+  "user_type": "individual/ind_with_nom",
+  "email": "sbala1999@yahoo.com",
+  "user_name": "Subramanian Balamurugan",
+  "user_shortname": "Subramanian",
+  "broker": "ZERODHA",
+  "exchanges": [
+    "BSE",
+    "MF",
+    "NSE"
+  ],
+  "products": [
+    "CNC",
+    "NRML",
+    "MIS",
+    "BO",
+    "CO"
+  ],
+  "order_types": [
+    "MARKET",
+    "LIMIT",
+    "SL",
+    "SL-M"
+  ],
+  "avatar_url": null,
+  "user_id": "VIW232",
+  "api_key": "eh0liyrp1js4nzbk",
+  "access_token": "UlmKfWZqq3bi9qeRJBgnbmY4OB83f1gP",
+  "public_token": "wL2Q3SXcMkPiCqcmhuAdaD7Vb7Abco6j",
+  "refresh_token": "",
+  "enctoken": "WHGhw9vuQis0A3VGNqAIIE5KX55GsgEB5rMJ2nWH7itPk6aoQC2nNM7mNP+DDWUO1qHdCWvb6AuxxWJdHNZabg5awNZyYMGDrl3TMgVazZt8nXXN30dPDKiZ1HVWBtQ=",
+  "login_time": "2026-06-07 19:32:23",
+  "meta": {
+    "demat_consent": "consent"
+  },
+  "redirect_url": "http://127.0.0.1:8000/kite_callback"
+}
