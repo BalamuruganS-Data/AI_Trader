@@ -107,7 +107,7 @@ class IndianIntradayTrader:
         self.trade_logger.log_trade(trade, result)
         return result
 
-    def send_trade_alert(self, trades: List[Dict[str, Any]]):
+    def send_trade_alert(self, trades: List[Dict[str, Any]], background: bool = False):
         if not trades:
             subject = "Intraday trader update: no trade taken"
             body = "No intraday setup was valid at this run. The watchlist was checked and no buy signals met the risk filters."
@@ -122,9 +122,9 @@ class IndianIntradayTrader:
                 )
             body = "\n".join(lines)
 
-        self.email_client.send(subject, body)
+        self.email_client.send(subject, body, background=background)
 
-    def run(self, requested_amount: float | None = None, interactive: bool = True) -> List[Dict[str, Any]]:
+    def run(self, requested_amount: float | None = None, interactive: bool = True, send_email_async: bool = False) -> List[Dict[str, Any]]:
         logging.info("Starting intraday analysis run with dynamic stock screening")
         if not self.market_open():
             logging.warning("Market hours are outside configured window. Continue when market is open.")
@@ -169,7 +169,7 @@ class IndianIntradayTrader:
                 logging.exception(f"Error processing {candidate['ticker']}: {exc}")
 
         try:
-            self.send_trade_alert(trades)
+            self.send_trade_alert(trades, background=send_email_async)
         except Exception as exc:
             logging.error(f"Trade alert email failed: {exc}")
         logging.info("Intraday run complete")

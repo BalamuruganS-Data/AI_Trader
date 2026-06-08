@@ -47,31 +47,42 @@ class StockScreener:
             latest = df.iloc[-1]
             previous = df.iloc[-2]
 
+            # Extract scalar values explicitly
+            ema9_val = float(latest["ema9"])
+            ema20_val = float(latest["ema20"])
+            rsi_val = float(latest["rsi"])
+            atr_val = float(latest["atr"])
+            close_val = float(latest["Close"])
+            macd_val = float(latest["macd"])
+            macd_signal_val = float(latest["macd_signal"])
+            macd_hist_val = float(latest["macd_hist"])
+
+            prev_macd_val = float(previous["macd"])
+            prev_macd_signal_val = float(previous["macd_signal"])
+
             # Check for bullish setup
-            strong_uptrend = float(latest["ema9"]) > float(latest["ema20"])
-            momentum = float(latest["macd"]) > float(latest["macd_signal"]) and float(previous["macd"]) <= float(
-                previous["macd_signal"]
-            )
-            rsi_safe = self.config.MIN_RSI < float(latest["rsi"]) < self.config.MAX_RSI
-            close_above_emas = float(latest["Close"]) > float(latest["ema9"]) > float(latest["ema20"])
+            strong_uptrend = ema9_val > ema20_val
+            momentum = macd_val > macd_signal_val and prev_macd_val <= prev_macd_signal_val
+            rsi_safe = self.config.MIN_RSI < rsi_val < self.config.MAX_RSI
+            close_above_emas = close_val > ema9_val > ema20_val
 
             if strong_uptrend and momentum and rsi_safe and close_above_emas:
                 # Calculate momentum score (higher = stronger setup)
                 momentum_score = (
-                    float(latest["macd_hist"]) / float(latest["atr"])
-                    + (float(latest["rsi"]) - 50) / 20  # RSI distance from midpoint
-                    + (float(latest["Close"]) - float(latest["ema20"])) / float(latest["atr"])  # price relative to EMA
+                    macd_hist_val / (atr_val + 1e-9)  # Avoid division by zero
+                    + (rsi_val - 50) / 20  # RSI distance from midpoint
+                    + (close_val - ema20_val) / (atr_val + 1e-9)  # price relative to EMA
                 )
 
                 return {
                     "ticker": ticker,
                     "momentum_score": momentum_score,
-                    "rsi": float(latest["rsi"]),
-                    "atr": float(latest["atr"]),
-                    "ema9": float(latest["ema9"]),
-                    "ema20": float(latest["ema20"]),
-                    "close": float(latest["Close"]),
-                    "macd_hist": float(latest["macd_hist"]),
+                    "rsi": rsi_val,
+                    "atr": atr_val,
+                    "ema9": ema9_val,
+                    "ema20": ema20_val,
+                    "close": close_val,
+                    "macd_hist": macd_hist_val,
                 }
 
             return None

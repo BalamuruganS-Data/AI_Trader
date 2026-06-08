@@ -47,8 +47,8 @@ def run_trading():
             requested_amount = None
 
     try:
-        trades = trader.run(requested_amount=requested_amount, interactive=False)
-        result_message = f"Executed {len(trades)} trade(s)."
+        trades = trader.run(requested_amount=requested_amount, interactive=False, send_email_async=True)
+        result_message = f"Executed {len(trades)} trade(s). Email alert sent in background."
     except Exception as exc:
         trades = []
         result_message = f"Error: {exc}"

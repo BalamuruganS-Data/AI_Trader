@@ -1,7 +1,11 @@
 import smtplib
 import ssl
+import logging
+import threading
 from email.message import EmailMessage
 from typing import Any, Dict, List
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 
 
 class EmailClient:
@@ -12,29 +16,43 @@ class EmailClient:
         self.password = password
         self.recipients = recipients
 
-    def send(self, subject: str, body: str):
+    def send(self, subject: str, body: str, background: bool = False):
+        """Send email synchronously or in background thread."""
         if not self.username or not self.password:
             raise ValueError("Email username or password is not configured.")
 
-        msg = EmailMessage()
-        msg["Subject"] = subject
-        msg["From"] = self.username
-        msg["To"] = ", ".join(self.recipients)
-        msg.set_content(body)
+        if background:
+            # Send in background thread to avoid blocking request
+            thread = threading.Thread(target=self._send_email, args=(subject, body), daemon=True)
+            thread.start()
+            logging.info(f"Email sent to background thread: {subject}")
+        else:
+            # Send synchronously (blocks)
+            self._send_email(subject, body)
 
-        context = ssl.create_default_context()
+    def _send_email(self, subject: str, body: str):
+        """Internal method to actually send the email."""
         try:
+            msg = EmailMessage()
+            msg["Subject"] = subject
+            msg["From"] = self.username
+            msg["To"] = ", ".join(self.recipients)
+            msg.set_content(body)
+
+            context = ssl.create_default_context()
             with smtplib.SMTP(self.smtp_server, self.smtp_port) as server:
                 server.starttls(context=context)
                 server.login(self.username, self.password)
                 server.send_message(msg)
+            logging.info(f"Email sent successfully: {subject}")
         except smtplib.SMTPAuthenticationError as exc:
-            raise ValueError(
-                "SMTP authentication failed. Check your email credentials and if you are using Gmail, use an app password or allow less secure apps. "
-                f"Original error: {exc}"
-            ) from exc
+            logging.error(
+                f"SMTP authentication failed. Check your email credentials. Error: {exc}"
+            )
         except smtplib.SMTPException as exc:
-            raise ValueError(f"SMTP error sending email: {exc}") from exc
+            logging.error(f"SMTP error sending email: {exc}")
+        except Exception as exc:
+            logging.error(f"Unexpected error sending email: {exc}")
 
     def build_summary(self, trades: List[Dict[str, Any]]) -> str:
         lines = ["Intraday trade alert summary:\n"]
