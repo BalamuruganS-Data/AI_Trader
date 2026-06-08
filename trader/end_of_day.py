@@ -68,7 +68,7 @@ class EndOfDayReport:
         lines.append(f"\nEstimated total P/L: {'+' if total_pnl >= 0 else ''}{total_pnl:.2f}")
         return "\n".join(lines)
 
-    def send_summary(self):
+    def send_summary(self, background: bool = False):
         body = self._build_report()
         subject = f"Intraday EOD summary {self.report_date.date()}"
         email_client = EmailClient(
@@ -78,7 +78,7 @@ class EndOfDayReport:
             password=config.EMAIL_PASSWORD,
             recipients=config.EMAIL_RECIPIENTS,
         )
-        email_client.send(subject, body)
+        email_client.send(subject, body, background=background)
         return body
 
 

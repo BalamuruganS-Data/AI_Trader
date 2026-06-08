@@ -76,8 +76,8 @@ def send_summary():
 
     report = EndOfDayReport(log_file=getattr(config, "TRADE_LOG_FILE", "trade_log.csv"), report_date=report_date)
     try:
-        summary_text = report.send_summary()
-        summary_message = "Summary email sent successfully."
+        summary_text = report.send_summary(background=True)
+        summary_message = "Summary email queued successfully."
     except Exception as exc:
         summary_text = str(exc)
         summary_message = f"Error sending summary: {exc}"

@@ -44,21 +44,21 @@ class StockScreener:
             df["atr"] = atr(df, window=14)
             df["macd"], df["macd_signal"], df["macd_hist"] = macd(df)
 
-            latest = df.iloc[-1]
-            previous = df.iloc[-2]
+            last_index = df.index[-1]
+            prev_index = df.index[-2]
 
-            # Extract scalar values explicitly
-            ema9_val = float(latest["ema9"])
-            ema20_val = float(latest["ema20"])
-            rsi_val = float(latest["rsi"])
-            atr_val = float(latest["atr"])
-            close_val = float(latest["Close"])
-            macd_val = float(latest["macd"])
-            macd_signal_val = float(latest["macd_signal"])
-            macd_hist_val = float(latest["macd_hist"])
+            # Extract scalar values explicitly from individual series
+            close_val = float(df["Close"].at[last_index])
+            ema9_val = float(df["ema9"].at[last_index])
+            ema20_val = float(df["ema20"].at[last_index])
+            rsi_val = float(df["rsi"].at[last_index])
+            atr_val = float(df["atr"].at[last_index])
+            macd_val = float(df["macd"].at[last_index])
+            macd_signal_val = float(df["macd_signal"].at[last_index])
+            macd_hist_val = float(df["macd_hist"].at[last_index])
 
-            prev_macd_val = float(previous["macd"])
-            prev_macd_signal_val = float(previous["macd_signal"])
+            prev_macd_val = float(df["macd"].at[prev_index])
+            prev_macd_signal_val = float(df["macd_signal"].at[prev_index])
 
             # Check for bullish setup
             strong_uptrend = ema9_val > ema20_val
